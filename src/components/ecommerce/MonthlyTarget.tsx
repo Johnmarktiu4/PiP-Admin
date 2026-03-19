@@ -1,19 +1,87 @@
 "use client";
 // import Chart from "react-apexcharts";
+import { useEffect, useState } from "react";
+import { FetchAPIData } from "@/lib/api";
 import { ApexOptions } from "apexcharts";
 
 import dynamic from "next/dynamic";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { MoreDotIcon } from "@/icons";
-import { useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
+interface TransactionItem {
+  fld_DateCreated: string;
+  fld_DiscountedAmount: number;
+  // Add other fields if needed
+}
+
 export default function MonthlyTarget() {
-  const series = [75.55];
+
+const [monthLabels, setMonthLabels] = useState<string[]>([]);
+const [monthlySales, setMonthlySales] = useState<number[]>([]);
+const [totalSales, setTotalSales] = useState<number>(0);
+const [data, setData] = useState({
+  target: 0,
+  revenue: 0,
+  today: 0,
+  progress: 0,
+});
+
+useEffect(() => {
+  const fetchMonthlySales = async () => {
+    const req = new FetchAPIData();
+    const res = await req.requestWOParam("/transaction/getTransactionList");
+    let total = 0;
+    if (res.status === "success") {
+      const result = res.data;
+
+      if (!result || result.length === 0) {
+        console.warn("No transaction data available.");
+        setData({ target: 0, revenue: 0, today: 0, progress: 0 });
+        return;
+      }
+
+      const monthlyTotals: { [key: string]: number } = {};
+
+      result.forEach((item: any) => {
+        if (item.fld_TransactionStatus === "Done") {
+          const date = new Date(item.fld_DateCreated);
+          const month = date.toLocaleString("default", { month: "short", year: "numeric" });
+          monthlyTotals[month] = (monthlyTotals[month] || 0) + item.fld_DiscountedAmount;
+          total += parseFloat(item.fld_DiscountedAmount);
+          setTotalSales(total);
+        }
+      });
+
+      const sortedMonths = Object.keys(monthlyTotals).sort(
+        (a, b) => new Date(a).getTime() - new Date(b).getTime()
+      );
+      setMonthLabels(sortedMonths);
+      setMonthlySales(sortedMonths.map(month => monthlyTotals[month]));
+
+      const today: number = result.reduce((sum: number, item: any) => {
+          const itemDate = new Date(item.fld_DateCreated);
+          const now = new Date();
+          return itemDate.toDateString() === now.toDateString() && item.fld_TransactionStatus === "Done" ? sum + parseFloat(item.fld_DiscountedAmount) : sum;
+      }, 0);
+
+      const revenue = total;
+      const target: number = 20000;
+      const progress = revenue > 0 ? parseFloat(Math.min(100, (revenue / target) * 100).toFixed(2)) : 0;
+      console.log(today);
+      setData({ target, revenue, today, progress });
+    }
+  };
+
+  fetchMonthlySales();
+}, []);
+
+const series = [data.progress];
+
   const options: ApexOptions = {
     colors: ["#465FFF"],
     chart: {
@@ -120,13 +188,9 @@ export default function MonthlyTarget() {
             />
           </div>
 
-          <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-600 dark:bg-success-500/15 dark:text-success-500">
-            +10%
-          </span>
         </div>
         <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
-          You earn $3287 today, it&apos;s higher than last month. Keep up your
-          good work!
+          You earn ₱{data.today === undefined ? "0.00" : data.today} today
         </p>
       </div>
 
@@ -136,7 +200,34 @@ export default function MonthlyTarget() {
             Target
           </p>
           <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-            $20K
+            ₱{data.target}
+          </p>
+        </div>
+
+        <div className="w-px bg-gray-200 h-7 dark:bg-gray-800"></div>
+
+        <div>
+          <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
+            Revenue
+          </p>
+          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
+            ₱{data.revenue}
+            {data.revenue >= data.target ? 
+              <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M7.60141 2.33683C7.73885 2.18084 7.9401 2.08243 8.16435 2.08243C8.16475 2.08243 8.16516 2.08243 8.16556 2.08243C8.35773 2.08219 8.54998 2.15535 8.69664 2.30191L12.6968 6.29924C12.9898 6.59203 12.9899 7.0669 12.6971 7.3599C12.4044 7.6529 11.9295 7.65306 11.6365 7.36027L8.91435 4.64004L8.91435 13.5C8.91435 13.9142 8.57856 14.25 8.16435 14.25C7.75013 14.25 7.41435 13.9142 7.41435 13.5L7.41435 4.64442L4.69679 7.36025C4.4038 7.65305 3.92893 7.6529 3.63613 7.35992C3.34333 7.06693 3.34348 6.59206 3.63646 6.29926L7.60141 2.33683Z"
+                fill="#039855"
+              />
+            </svg>
+            :
             <svg
               width="16"
               height="16"
@@ -151,31 +242,7 @@ export default function MonthlyTarget() {
                 fill="#D92D20"
               />
             </svg>
-          </p>
-        </div>
-
-        <div className="w-px bg-gray-200 h-7 dark:bg-gray-800"></div>
-
-        <div>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
-            Revenue
-          </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-            $20K
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M7.60141 2.33683C7.73885 2.18084 7.9401 2.08243 8.16435 2.08243C8.16475 2.08243 8.16516 2.08243 8.16556 2.08243C8.35773 2.08219 8.54998 2.15535 8.69664 2.30191L12.6968 6.29924C12.9898 6.59203 12.9899 7.0669 12.6971 7.3599C12.4044 7.6529 11.9295 7.65306 11.6365 7.36027L8.91435 4.64004L8.91435 13.5C8.91435 13.9142 8.57856 14.25 8.16435 14.25C7.75013 14.25 7.41435 13.9142 7.41435 13.5L7.41435 4.64442L4.69679 7.36025C4.4038 7.65305 3.92893 7.6529 3.63613 7.35992C3.34333 7.06693 3.34348 6.59206 3.63646 6.29926L7.60141 2.33683Z"
-                fill="#039855"
-              />
-            </svg>
+            }  
           </p>
         </div>
 
@@ -186,8 +253,9 @@ export default function MonthlyTarget() {
             Today
           </p>
           <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-            $20K
-            <svg
+            ₱{data.today === undefined ? "0.00" : data.today}
+            {data.today > 0 ? 
+              <svg
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -201,6 +269,22 @@ export default function MonthlyTarget() {
                 fill="#039855"
               />
             </svg>
+            :
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M7.26816 13.6632C7.4056 13.8192 7.60686 13.9176 7.8311 13.9176C7.83148 13.9176 7.83187 13.9176 7.83226 13.9176C8.02445 13.9178 8.21671 13.8447 8.36339 13.6981L12.3635 9.70076C12.6565 9.40797 12.6567 8.9331 12.3639 8.6401C12.0711 8.34711 11.5962 8.34694 11.3032 8.63973L8.5811 11.36L8.5811 2.5C8.5811 2.08579 8.24531 1.75 7.8311 1.75C7.41688 1.75 7.0811 2.08579 7.0811 2.5L7.0811 11.3556L4.36354 8.63975C4.07055 8.34695 3.59568 8.3471 3.30288 8.64009C3.01008 8.93307 3.01023 9.40794 3.30321 9.70075L7.26816 13.6632Z"
+                fill="#D92D20"
+              />
+            </svg>
+            }
           </p>
         </div>
       </div>

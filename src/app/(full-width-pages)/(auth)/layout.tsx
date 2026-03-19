@@ -31,7 +31,7 @@ export default function AuthLayout({
                   />
                 </Link>
                 <p className="text-center text-gray-400 dark:text-white/60">
-                  Free and Open-Source Tailwind CSS Admin Dashboard Template
+                  Testing the layout for authentication pages. This is a placeholder text to ensure the layout is working as expected.
                 </p>
               </div>
             </div>

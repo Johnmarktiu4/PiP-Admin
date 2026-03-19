@@ -1,18 +1,95 @@
 "use client";
+import React, { useEffect, useState } from "react";
 import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
+import {FetchAPIData} from "@/lib/api";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-import React, { useState } from "react";
+
+
 
 export default function SignInForm() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+const [showPassword, setShowPassword] = useState(false);
+const [isChecked, setIsChecked] = useState(false);
+const [showForgotModal, setShowForgotModal] = useState(false);
+const [showOTPModal, setShowOTPModal] = useState(false);
+
+const handleSubmit = async (event: React.FormEvent) => {
+  event.preventDefault();
+  // Implement sign-in logic here
+  const formData = new FormData(event.currentTarget as HTMLFormElement);
+  const username = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  try {
+    const req = new FetchAPIData();
+    const response = await req.request("/signIn", { username, password });
+    if (response.status === "success") {
+      localStorage.setItem("user", JSON.stringify(response.data));
+      // Redirect to dashboard or show success message
+      console.log("Redirecting to dashboard...");
+      alert(response.message);
+      window.location.href = "/";
+    }
+    else
+    {
+      alert(response.message);
+    }
+    // Redirect or show success message
+  } catch (error) {
+    console.error("Sign in failed:", error);
+    // Handle error (e.g., show error message)
+  }
+};
+
+const handleForgotPassword = async (event: React.FormEvent) => {
+  event.preventDefault();
+  const formData = new FormData(event.currentTarget as HTMLFormElement);
+  const username = formData.get("forgot-email") as string;
+  // Implement forgot password logic here
+
+  try{
+    const req = new FetchAPIData();
+    const response = await req.request("/forgotPassword/otp", { username });
+    if (response.status === "success") {
+      alert(response.message + ' to ' + username);
+      setShowOTPModal(true);
+      localStorage.setItem("otp", JSON.stringify(response.data));
+      localStorage.setItem("forgotEmail", username);
+    }
+    else {
+      alert(response.message);
+    }
+    }catch(error) {
+    console.error("Forgot password failed:", error);
+    // Handle error (e.g., show error message)
+  }
+  setShowForgotModal(false);
+};
+
+const verifyOTP = async (event: React.FormEvent) => {
+  event.preventDefault();
+  const formData = new FormData(event.currentTarget as HTMLFormElement);
+  const otp = formData.get("otp") as string;
+  // Implement OTP verification logic here
+  const storedOtp = localStorage.getItem("otp");
+  console.log(storedOtp);
+  if (storedOtp && JSON.parse(storedOtp).otp === otp) {
+    alert("OTP verified successfully!");
+    // Redirect to reset password page or show success message
+    window.location.href = "/resetpassword";
+  } else {
+    alert("Invalid OTP. Please try again.");
+  }
+  setShowOTPModal(false);
+};
+
+
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
-      <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
+      {/* <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
         <Link
           href="/"
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -20,7 +97,7 @@ export default function SignInForm() {
           <ChevronLeftIcon />
           Back to dashboard
         </Link>
-      </div>
+      </div> */}
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
@@ -84,13 +161,13 @@ export default function SignInForm() {
                 </span>
               </div>
             </div>
-            <form>
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-6">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" type="email" />
+                  <Input id="email" name="email" placeholder="info@gmail.com" type="email" />
                 </div>
                 <div>
                   <Label>
@@ -98,6 +175,8 @@ export default function SignInForm() {
                   </Label>
                   <div className="relative">
                     <Input
+                      id="password"
+                      name="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                     />
@@ -120,12 +199,14 @@ export default function SignInForm() {
                       Keep me logged in
                     </span>
                   </div>
-                  <Link
-                    href="/reset-password"
-                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 bg-transparent border-none p-0 m-0 cursor-pointer"
                   >
                     Forgot password?
-                  </Link>
+                  </button>
+                  
                 </div>
                 <div>
                   <Button className="w-full" size="sm">
@@ -134,6 +215,49 @@ export default function SignInForm() {
                 </div>
               </div>
             </form>
+            {/* Forgot Password Modal */}
+                  {showForgotModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-sm relative">
+                        <button
+                          className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                          onClick={() => setShowForgotModal(false)}
+                          aria-label="Close"
+                        >
+                          &times;
+                        </button>
+                        <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">Forgot Password</h2>
+                        <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">Enter your email address and we'll send you a OTP to reset your password.</p>
+                        <form
+                          onSubmit= {handleForgotPassword}
+                          className="space-y-4"
+                        >
+                          <Input id="forgot-email" name="forgot-email" type="email" placeholder="Enter your email" />
+                          <Button className="w-full" size="sm">Send OTP</Button>
+                        </form>
+                      </div>
+                    </div>
+                  )}
+            {/* OTP Modal */}
+            {showOTPModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-sm relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                    onClick={() => setShowOTPModal(false)}
+                    aria-label="Close"
+                  >
+                    &times;
+                  </button>
+                  <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">Enter OTP</h2>
+                  <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">Please enter the OTP sent to your email.</p>
+                  <form className="space-y-4" onSubmit={verifyOTP}>
+                    <Input id="otp" name="otp" type="text" placeholder="Enter OTP" />
+                    <Button className="w-full" size="sm">Verify OTP</Button>
+                  </form>
+                </div>
+              </div>
+            )}
 
             <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">

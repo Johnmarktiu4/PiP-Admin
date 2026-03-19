@@ -2,7 +2,7 @@ import SignInForm from "@/components/auth/SignInForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "PiP Tea Admin",
+  title: "Mr. Snow Admin",
   description: "",
 };
 

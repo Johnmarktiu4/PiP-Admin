@@ -1,18 +1,46 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
+import Button from "@mui/material/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { FetchAPIData } from "@/lib/api";
+
+type UserIn = {
+  fld_Address?: string;
+};
 
 export default function UserAddressCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
+  const [country, setCountry] = React.useState("Philippines");
+  const [city, setCity] = React.useState("Glan, Sarangani.");
+  const [user, setUser] = useState<UserIn | null>(null);
+
+  const fetchAccountData = async () => {
+    try {
+      const req = new FetchAPIData();
+      const UserData = localStorage.getItem("user");
+      const user = UserData ? JSON.parse(UserData) : null;
+      if (user && user.fld_UserId) {
+        const response = await req.request("/account/getAccountInfo", { fld_Username: user.fld_Username });
+        if (response.status === "success") {
+          setUser(response.data);
+          setCity(response.data.fld_Address || "Glan, Sarangani.");
+        } else {
+          console.error("Failed to fetch account data:", response.message);
+        }
+      }
+    }
+    catch (error) {
+      console.error("Error fetching account data:", error);
+    }
   };
+
+  useEffect(() => {
+    fetchAccountData();
+  }, []);
+
   return (
     <>
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -34,28 +62,10 @@ export default function UserAddressCard() {
 
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  City/State
+                  City/Province
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  Glan, Sarangani.
-                </p>
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Postal Code
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  1234
-                </p>
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  TAX ID
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  AS4568384
+                  {city}
                 </p>
               </div>
             </div>
@@ -94,35 +104,55 @@ export default function UserAddressCard() {
               Update your details to keep your profile up-to-date.
             </p>
           </div>
-          <form className="flex flex-col">
+          <form className="flex flex-col" onSubmit={
+            async (e) => {
+              e.preventDefault();
+              try{
+              const req = new FetchAPIData();
+              let cities = document.getElementById("fld_Address")?.getAttribute("value");
+              if (city === "" && (cities === null || cities === "")) {
+                return alert("City/Province cannot be empty");
+              }
+              let user: any = null;
+              const userData = localStorage.getItem("user");
+              if (userData) {
+                user = JSON.parse(userData);
+              }
+              const addressData = {
+                fld_Address: city,
+                fld_UserId: user?.fld_UserId,
+              }
+              const response = await req.request("/account/edit", addressData);
+              if (response.status === "success") {
+                // Optionally update local state or give user feedback here
+                alert("Address updated successfully");
+              } else {
+                alert("Failed to update address: " + response.message);
+              }
+              closeModal();
+            } catch (error) {
+              console.error("Error updating address:", error);
+              alert("An error occurred while updating your address. Please try again.");
+            }
+          }}>
             <div className="px-2 overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
                   <Label>Country</Label>
-                  <Input type="text" defaultValue="Philippines" />
+                  <Input type="text" defaultValue="Philippines" onChange={(e) => setCountry(e.target.value)} />
                 </div>
 
                 <div>
-                  <Label>City/State</Label>
-                  <Input type="text" defaultValue="Glan, Sarangani." />
-                </div>
-
-                <div>
-                  <Label>Postal Code</Label>
-                  <Input type="text" defaultValue="1234" />
-                </div>
-
-                <div>
-                  <Label>TAX ID</Label>
-                  <Input type="text" defaultValue="AS4568384" />
+                  <Label>City/Province</Label>
+                  <Input type="text" id="fld_Address" defaultValue={city} onChange={(e) => setCity(e.target.value)} />
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
+              <Button variant="outlined" color="secondary" onClick={closeModal} className="ml-2">
                 Close
               </Button>
-              <Button size="sm" onClick={handleSave}>
+              <Button variant="contained" color="primary" type="submit">
                 Save Changes
               </Button>
             </div>

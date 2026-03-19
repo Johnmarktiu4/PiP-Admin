@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "PiP Tea Admin",
+  title: "Mr. Snow Admin",
   description:
     "",
 };
@@ -19,7 +19,6 @@ export default function Profile() {
         </h3>
         <div className="space-y-6">
           <UserMetaCard />
-          <UserInfoCard />
           <UserAddressCard />
         </div>
       </div>

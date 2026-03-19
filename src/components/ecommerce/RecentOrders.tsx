@@ -1,3 +1,6 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import { FetchAPIData } from "@/lib/api";
 import {
   Table,
   TableBody,
@@ -20,54 +23,91 @@ interface Product {
   status: "Delivered" | "Pending" | "Canceled"; // Status of the product
 }
 
-// Define the table data using the interface
-const tableData: Product[] = [
-  {
-    id: 1,
-    name: "MacBook Pro 13”",
-    variants: "2 Variants",
-    category: "Laptop",
-    price: "$2399.00",
-    status: "Delivered",
-    image: "/images/product/product-01.jpg", // Replace with actual image URL
-  },
-  {
-    id: 2,
-    name: "Apple Watch Ultra",
-    variants: "1 Variant",
-    category: "Watch",
-    price: "$879.00",
-    status: "Pending",
-    image: "/images/product/product-02.jpg", // Replace with actual image URL
-  },
-  {
-    id: 3,
-    name: "iPhone 15 Pro Max",
-    variants: "2 Variants",
-    category: "SmartPhone",
-    price: "$1869.00",
-    status: "Delivered",
-    image: "/images/product/product-03.jpg", // Replace with actual image URL
-  },
-  {
-    id: 4,
-    name: "iPad Pro 3rd Gen",
-    variants: "2 Variants",
-    category: "Electronics",
-    price: "$1699.00",
-    status: "Canceled",
-    image: "/images/product/product-04.jpg", // Replace with actual image URL
-  },
-  {
-    id: 5,
-    name: "AirPods Pro 2nd Gen",
-    variants: "1 Variant",
-    category: "Accessories",
-    price: "$240.00",
-    status: "Delivered",
-    image: "/images/product/product-05.jpg", // Replace with actual image URL
-  },
-];
+interface Orders {
+  fld_Id: number;
+  fld_ProductId: number;
+  fld_Price: string;
+  fld_Qty: number;
+  fld_ProductName: string;
+  fld_Image: string;
+}
+
+interface OrdersTableProps {
+  // You can define props here if needed
+}
+
+const OrderTable: React.FC<OrdersTableProps> = () => {
+  const [tableData, setTableData] = useState<Orders[]>([]);
+
+  const fetchTableData = async () => {
+      try {
+        const req = new FetchAPIData();
+        const response = await req.requestWOParam("/order/recentOrder");
+        if (response.status === "success") {
+          setTableData(response.data);    
+          const total = response.data.reduce((sum: number, order: Orders) => {
+            return sum + parseFloat(order.fld_Price) * order.fld_Qty;
+          }, 0);
+        } else {
+          console.error("Failed to fetch account data:", response.message);
+        }
+      } catch (error) {
+        console.error("Error fetching account data:", error);
+      }
+    };
+  
+
+    useEffect(() => {
+      fetchTableData();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+  return (
+            <Table>
+            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                <TableRow>
+                  <TableCell isHeader className="px-10 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                      Order Item
+                  </TableCell>
+                  <TableCell isHeader className="px-10 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                      Price
+                  </TableCell>
+                  <TableCell isHeader className="px-10 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                      Quantity
+                  </TableCell>
+                  <TableCell isHeader className="px-10 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                      Sub Total
+                  </TableCell>
+                </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                {tableData.map((orders) => (
+                <TableRow key={orders.fld_Id}>
+                    <TableCell className="px-9 py-4 sm:px-6 text-start">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 overflow-hidden rounded-full">
+                        <Image width={40} height={40} src= {'data:image/jpeg;base64,' + orders.fld_Image} alt={orders.fld_ProductName} />
+                        </div>
+                        <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {orders.fld_ProductName}
+                        </span>
+                    </div>
+                    </TableCell>
+                    <TableCell className="px-8 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                        ₱{orders.fld_Price}
+                    </TableCell>
+                    <TableCell className="px-8 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                        {orders.fld_Qty}
+                    </TableCell>
+                    <TableCell className="px-8 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                        ₱{(parseFloat(orders.fld_Price) * orders.fld_Qty).toFixed(2)}
+                    </TableCell>
+                </TableRow>
+                ))}
+            </TableBody>
+            </Table>
+  );
+};
 
 export default function RecentOrders() {
   return (
@@ -124,87 +164,7 @@ export default function RecentOrders() {
         </div>
       </div>
       <div className="max-w-full overflow-x-auto">
-        <Table>
-          {/* Table Header */}
-          <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
-            <TableRow>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Products
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Category
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Price
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Status
-              </TableCell>
-            </TableRow>
-          </TableHeader>
-
-          {/* Table Body */}
-
-          <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {tableData.map((product) => (
-              <TableRow key={product.id} className="">
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                      <Image
-                        width={50}
-                        height={50}
-                        src={product.image}
-                        className="h-[50px] w-[50px]"
-                        alt={product.name}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {product.name}
-                      </p>
-                      <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                        {product.variants}
-                      </span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.price}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.category}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <Badge
-                    size="sm"
-                    color={
-                      product.status === "Delivered"
-                        ? "success"
-                        : product.status === "Pending"
-                        ? "warning"
-                        : "error"
-                    }
-                  >
-                    {product.status}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <OrderTable/>
       </div>
     </div>
   );

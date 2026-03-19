@@ -29,7 +29,13 @@ type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: {
+    name: string;
+    path: string;
+    pro?: boolean;
+    new?: boolean;
+    onClick?: () => void;
+  }[];
 };
 
 const navItems: NavItem[] = [
@@ -43,86 +49,106 @@ const navItems: NavItem[] = [
     icon: <ListIcon2 />,
     name: "Transactions",
     // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
-    path: "/test",
+    path: "/transactions",
   },
   {
     icon: <PointOfSaleIcon />,
     name: "POS",
     // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
-    path: "/test",
+    path: "/pos",
   },
   {
     icon: <InventoryIcon />,
     name: "Inventory",
     // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
-    path: "/test",
+    path: "/inventory",
   },
   {
     icon: <AssessmentIcon />,
-    name: "SalesReport",
+    name: "Sales Report",
     // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
-    path: "/test",
+    path: "/sales-report",
   },
-  {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
-  },
+  // {
+  //   icon: <CalenderIcon />,
+  //   name: "Calendar",
+  //   path: "/calendar",
+  // },
   {
     icon: <UserCircleIcon />,
     name: "User Profile",
     path: "/profile",
   },
+  {
+    icon: <GridIcon />,
+    name: "My Sales",
+    path: "/my-sales",
+  },
 
-  {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
-    subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
-    ],
-  },
+  // {
+  //   name: "Forms",
+  //   icon: <ListIcon />,
+  //   subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
+  // },
+  // {
+  //   name: "Tables",
+  //   icon: <TableIcon />,
+  //   subItems: [{ name: "Basic Tables", path: "/basic-tables2", pro: false }],
+  // },
+  // {
+  //   name: "Pages",
+  //   icon: <PageIcon />,
+  //   subItems: [
+  //     { name: "Blank Page", path: "/blank", pro: false },
+  //     { name: "404 Error", path: "/error-404", pro: false },
+  //   ],
+  // },
 ];
 
 const othersItems: NavItem[] = [
-  {
-    icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/line-chart", pro: false },
-      { name: "Bar Chart", path: "/bar-chart", pro: false },
-    ],
-  },
+  // {
+  //   icon: <PieChartIcon />,
+  //   name: "Charts",
+  //   subItems: [
+  //     { name: "Line Chart", path: "/line-chart", pro: false },
+  //     { name: "Bar Chart", path: "/bar-chart", pro: false },
+  //   ],
+  // },
   {
     icon: <BoxCubeIcon />,
-    name: "UI Elements",
+    name: "Maintenance",
     subItems: [
-      { name: "Alerts", path: "/alerts", pro: false },
-      { name: "Avatar", path: "/avatars", pro: false },
-      { name: "Badge", path: "/badge", pro: false },
-      { name: "Buttons", path: "/buttons", pro: false },
-      { name: "Images", path: "/images", pro: false },
-      { name: "Videos", path: "/videos", pro: false },
+      // { name: "Menu Management", path: "/menu-management", pro: false },
+      // { name: "Product Management", path: "/alerts", pro: false },
+      // { name: "Category Management", path: "/avatars", pro: false },
+      // { name: "Back Up Database", path: "/badge", pro: false },
+      // { name: "Restore Database", path: "/buttons", pro: false },
+      // { name: "Account Management", path: "/images", pro: false },
+      // { name: "Event & Offer Management", path: "/videos", pro: false },
+      // { name: "Menu Management", path: "/menu-management", pro: false },
+      // { name: "Product Management", path: "/product-management", pro: false },
+      // { name: "Category Management", path: "/category-management", pro: false },
+      { name: "Discount Management", path: "/discount-management", pro: false },
+      { name: "Back Up Database", path: "/back-up", pro: false, onClick: () => { 
+        alert("Back Up Database successfully");
+        window.location.href = "/back-up";
+      }},
+      { name: "Restore Database", path: "/restore", pro: false, onClick: () => {
+        alert("Restore Database successfully");
+        window.location.href = "/restore";
+      }},
+      { name: "Account Management", path: "/account-management", pro: false },
+      // { name: "Event & Offer Management", path: "/event-offers", pro: false },
     ],
   },
-  {
-    icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
-    ],
-  },
+  // {
+  //   icon: <PlugInIcon />,
+  //   name: "Authentication",
+  //   subItems: [
+  //     { name: "Sign In", path: "/signin", pro: false },
+  //     { name: "Sign Up", path: "/signup", pro: false },
+  //   ],
+  // },
 ];
 
 const AppSidebar: React.FC = () => {
@@ -211,6 +237,43 @@ const AppSidebar: React.FC = () => {
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((subItem) => (
                   <li key={subItem.name}>
+                    {subItem.onClick ? (
+                    <button
+                      type="button"
+                      onClick={subItem.onClick}
+                      className={`menu-dropdown-item ${
+                        isActive(subItem.path)
+                          ? "menu-dropdown-item-active"
+                          : "menu-dropdown-item-inactive"
+                      }`}
+                    >
+                      {subItem.name}
+                      <span className="flex items-center gap-1 ml-auto">
+                        {subItem.new && (
+                          <span
+                            className={`ml-auto ${
+                              isActive(subItem.path)
+                                ? "menu-dropdown-badge-active"
+                                : "menu-dropdown-badge-inactive"
+                            } menu-dropdown-badge `}
+                          >
+                            new
+                          </span>
+                        )}
+                        {subItem.pro && (
+                          <span
+                            className={`ml-auto ${
+                              isActive(subItem.path)
+                                ? "menu-dropdown-badge-active"
+                                : "menu-dropdown-badge-inactive"
+                            } menu-dropdown-badge `}
+                          >
+                            pro
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  ) : (
                     <Link
                       href={subItem.path}
                       className={`menu-dropdown-item ${
@@ -245,6 +308,7 @@ const AppSidebar: React.FC = () => {
                         )}
                       </span>
                     </Link>
+                  )}
                   </li>
                 ))}
               </ul>
@@ -263,9 +327,21 @@ const AppSidebar: React.FC = () => {
     {}
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  type User = {
+    fld_UserLevel?: string;
+    // add other user properties if needed
+  };
+  const [user, setUser] = useState<User | null>(null);
 
   // const isActive = (path: string) => path === pathname;
    const isActive = useCallback((path: string) => path === pathname, [pathname]);
+  
+  useEffect(() => {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+  }, []);
 
   useEffect(() => {
     // Check if the current path matches any submenu item
@@ -346,7 +422,7 @@ const AppSidebar: React.FC = () => {
                 className="dark:hidden"
                 src="/images/logo/test.svg"
                 alt="Logo"
-                width={150}
+                width={225}
                 height={40}
               />
               <Image
@@ -354,7 +430,7 @@ const AppSidebar: React.FC = () => {
                 // src="/images/logo/logo-dark.svg"
                 src="/images/logo/test.svg"
                 alt="Logo"
-                width={150}
+                width={225}
                 height={40}
               />
             </>
@@ -388,7 +464,7 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(navItems, "main")}
             </div>
-
+            {user?.fld_UserLevel === "Owner" && (
             <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
@@ -403,8 +479,11 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(othersItems, "others")}
+              {user?.fld_UserLevel === "Owner" && (
+                renderMenuItems(othersItems, "others")
+              )}
             </div>
+            )}
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}

@@ -2,7 +2,7 @@ import SignUpForm from "@/components/auth/SignUpForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "PiP Tea Admin",
+  title: "Mr. Snow Admin",
   description: "",
   // other metadata
 };
