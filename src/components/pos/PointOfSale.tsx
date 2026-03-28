@@ -142,7 +142,7 @@ const MenuTable: React.FC<MenuTableProps> = ({ onSelect, refreshKey }) => {
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
                 <TableCell isHeader className="px-10 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                  Menu Item
+                  Packages
                 </TableCell>
                 <TableCell isHeader className="px-6 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                   Price
@@ -254,7 +254,7 @@ const OrderTable: React.FC<OrdersTableProps> = ({ onEdit, refreshKey, transNumbe
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
                 <TableCell isHeader className="px-10 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                    Order Item
+                    Order
                 </TableCell>
                 <TableCell isHeader className="px-10 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                     Price

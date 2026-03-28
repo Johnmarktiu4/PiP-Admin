@@ -122,7 +122,7 @@ const SaleTable: React.FC<{ refereshKey: number }> = ({ refereshKey }) => {
         id="reportType"
         options={[
           { label: "Per Transaction", value: "transaction" },
-          { label: "Per Product", value: "product" }
+          { label: "Per Package", value: "product" }
         ]}
         defaultValue="transaction"
         value={reportType}
@@ -153,11 +153,11 @@ const SaleTable: React.FC<{ refereshKey: number }> = ({ refereshKey }) => {
         </div>
         {reportType === "product" ? (
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="filterProduct">Product</label>
+            <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="filterProduct">Package</label>
             <Select
               id="filterProduct"
               options={productOptions}
-              placeholder="Select Product ID"
+              placeholder="Select Package ID"
               value={filterProduct}
               onChange={(value: string) => setFilterProduct(value)}
             />
@@ -222,7 +222,7 @@ const SaleTable: React.FC<{ refereshKey: number }> = ({ refereshKey }) => {
                   ) : (
                     <>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400">Transaction ID</TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400">Product ID</TableCell>
+                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400">Package ID</TableCell>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400">Price</TableCell>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400">Quantity</TableCell>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400">Total</TableCell>
