@@ -138,6 +138,7 @@ const othersItems: NavItem[] = [
         window.location.href = "/restore";
       }},
       { name: "Account Management", path: "/account-management", pro: false },
+      { name: "Content Management", path: "/content-management", pro: false },
       // { name: "Event & Offer Management", path: "/event-offers", pro: false },
     ],
   },

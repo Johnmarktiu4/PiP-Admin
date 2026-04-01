@@ -45,3 +45,26 @@ export class FetchAPIData {
         }
     }
 }
+
+// Standalone helper for multipart/form-data requests (e.g. file uploads)
+export async function requestFormData(queries: string, formData: FormData): Promise<any> {
+    const url = process.env.API_BASE_URL ?? "http://localhost:8080/api";
+    try {
+        const response = await fetch(url + queries, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": process.env.Token ?? "Test*1234",
+                // NOTE: do NOT set Content-Type — browser sets it with boundary automatically
+            },
+            body: formData,
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error uploading form data:", error);
+        throw error;
+    }
+}

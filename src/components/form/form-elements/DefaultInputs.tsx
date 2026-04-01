@@ -30,7 +30,7 @@ export default function DefaultInputs({ setTransactionNumber, totalAmount, refre
   const [Charge, setCharge] = useState(0);
   const [finalAmount, setFinalAmount] = useState(0);
   const [change, setChange] = useState(0);
-  const [transactionType, setTransactionType] = useState("Dine-In");
+  const [transactionType, setTransactionType] = useState("Walk-In");
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [amountPaid, setAmountPaid] = useState(0);
   const [discountType, setDiscountType] = useState("None");
@@ -115,8 +115,8 @@ const handleDownloadPDF = async () => {
   ];
 
   const optionsTransactionType = [
-    {value: "Dine-In", label: "Dine-In"},
-    {value: "Take-Out", label: "Take-Out"},
+    {value: "Walk-In", label: "Walk-In"},
+    {value: "Online", label: "Online"},
   ];
 
   const discountOptions = [
@@ -287,7 +287,7 @@ const handleDownloadPDF = async () => {
             id='transactionType'
             placeholder="Select an transaction type"
             onChange={(value) => setTransactionType(value)}
-            defaultValue='Dine-In'
+            defaultValue='Walk-In'
             className="dark:bg-dark-900"
           />
              <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">

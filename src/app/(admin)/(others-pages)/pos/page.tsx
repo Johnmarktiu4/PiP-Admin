@@ -7,7 +7,7 @@ import PointOfSale from "@/components/pos/PointOfSale";
 import DefaultInputs from "@/components/form/form-elements/DefaultInputs";
 
 export const metadata: Metadata = {
-  title: "Mr. Snow Admin",
+  title: "Porta Vaga Admin",
   description:
     "",
   // other metadata

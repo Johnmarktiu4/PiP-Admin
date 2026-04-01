@@ -5,7 +5,7 @@ import Link from "next/link";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Mr. Snow Admin",
+  title: "Porta Vaga Admin",
   description:
     "",
 };
@@ -47,7 +47,7 @@ export default function Error404() {
       </div>
       {/* <!-- Footer --> */}
       <p className="absolute text-sm text-center text-gray-500 -translate-x-1/2 bottom-6 left-1/2 dark:text-gray-400">
-        &copy; {new Date().getFullYear()} - Mr. Snow Admin
+        &copy; {new Date().getFullYear()} - Porta Vaga Admin
       </p>
     </div>
   );
