@@ -79,11 +79,11 @@ const navItems: NavItem[] = [
     name: "User Profile",
     path: "/profile",
   },
-  {
-    icon: <GridIcon />,
-    name: "My Sales",
-    path: "/my-sales",
-  },
+  // {
+  //   icon: <GridIcon />,
+  //   name: "My Sales",
+  //   path: "/my-sales",
+  // },
 
   // {
   //   name: "Forms",
